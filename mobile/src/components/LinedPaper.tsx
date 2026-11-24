@@ -1,5 +1,5 @@
 import { useState, type ReactNode, type Ref } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions, type StyleProp, type TextInputProps, type TextStyle } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions, type StyleProp, type TextInputInstance, type TextInputProps, type TextStyle } from 'react-native';
 import { alpha, colors, fonts, radius, shadow, size, type } from '@/theme/theme';
 import { Icon } from './Icon';
 import { PressableScale, diacriticRoom } from './internal';
@@ -98,7 +98,7 @@ export function PaperRow({ label, children }: { label: string; children?: ReactN
 }
 
 /** `ref` verilebilir (klavyede "next" ile sıradaki alana geçmek için). */
-export function PaperInput(props: TextInputProps & { ref?: Ref<TextInput> }) {
+export function PaperInput(props: TextInputProps & { ref?: Ref<TextInputInstance> }) {
   return (
     <TextInput
       placeholderTextColor={alpha.forest45}

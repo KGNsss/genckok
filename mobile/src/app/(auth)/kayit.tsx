@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import type { TextInput } from 'react-native';
+import type { TextInputInstance } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { signUp } from '@/api/auth';
@@ -15,12 +15,12 @@ const DEFAULT_SCHOOL = 'Ankara Yıldırım Beyazıt Üniversitesi';
 
 export default function Kayit() {
   const router = useRouter();
-  const emailRef = useRef<TextInput>(null);
-  const passwordRef = useRef<TextInput>(null);
-  const password2Ref = useRef<TextInput>(null);
-  const yearRef = useRef<TextInput>(null);
-  const departmentRef = useRef<TextInput>(null);
-  const schoolRef = useRef<TextInput>(null);
+  const emailRef = useRef<TextInputInstance>(null);
+  const passwordRef = useRef<TextInputInstance>(null);
+  const password2Ref = useRef<TextInputInstance>(null);
+  const yearRef = useRef<TextInputInstance>(null);
+  const departmentRef = useRef<TextInputInstance>(null);
+  const schoolRef = useRef<TextInputInstance>(null);
 
   const [role, setRole] = useState<Role>('ogrenci');
   const [fullName, setFullName] = useState('');

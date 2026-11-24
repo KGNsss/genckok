@@ -23,13 +23,35 @@ export const ERROR_MESSAGES: Record<string, string> = {
   GK_EMPTY: 'Bir şeyler ters gitti, tekrar dene.',
 };
 
+/** Supabase Auth hata kodları (AuthError.code). Metinler sürümden sürüme değişebildiği için önce koda bakılır. */
+const AUTH_CODES: Record<string, string> = {
+  invalid_credentials: 'E-posta ya da şifre hatalı.',
+  user_already_exists: 'Bu e-postayla zaten bir hesap var. Giriş yap.',
+  email_exists: 'Bu e-postayla zaten bir hesap var. Giriş yap.',
+  weak_password: 'Şifre en az 8 karakter olmalı.',
+  email_address_invalid: 'Geçerli bir e-posta yaz.',
+  email_not_confirmed: 'E-postanı onaylaman gerekiyor.',
+  over_email_send_rate_limit: 'Çok fazla e-posta gönderildi, biraz sonra tekrar dene.',
+  over_request_rate_limit: 'Çok fazla deneme yaptın, biraz bekle.',
+  same_password: 'Yeni şifre eskisiyle aynı olamaz.',
+  signup_disabled: 'Şu an yeni kayıt alınmıyor.',
+  session_not_found: 'Oturumun kapanmış, tekrar giriş yap.',
+  session_expired: 'Oturumun kapanmış, tekrar giriş yap.',
+  refresh_token_not_found: 'Oturumun kapanmış, tekrar giriş yap.',
+  bad_jwt: 'Oturumun kapanmış, tekrar giriş yap.',
+  otp_expired: 'Bağlantının süresi dolmuş, yenisini iste.',
+  flow_state_expired: 'Bağlantının süresi dolmuş, yenisini iste.',
+};
+
 const AUTH_MESSAGES: [RegExp, string][] = [
   [/invalid login credentials/i, 'E-posta ya da şifre hatalı.'],
-  [/user already registered/i, 'Bu e-postayla zaten bir hesap var.'],
-  [/password should be|weak password/i, 'Şifre en az 8 karakter olmalı.'],
-  [/unable to validate email|invalid email/i, 'Geçerli bir e-posta yaz.'],
+  [/already (been )?registered|already exists/i, 'Bu e-postayla zaten bir hesap var. Giriş yap.'],
+  [/password should|weak password/i, 'Şifre en az 8 karakter olmalı.'],
+  [/unable to validate email|invalid email|email address .* is invalid/i, 'Geçerli bir e-posta yaz.'],
   [/email not confirmed/i, 'E-postanı onaylaman gerekiyor.'],
   [/rate limit|too many requests/i, 'Çok fazla deneme yaptın, biraz bekle.'],
+  [/jwt expired|invalid jwt|refresh token/i, 'Oturumun kapanmış, tekrar giriş yap.'],
+  [/permission denied/i, 'Bu bilgiye erişim izni yok. Yöneticiye haber ver.'],
   [/network request failed|failed to fetch|network/i, 'İnternet bağlantını kontrol et.'],
 ];
 
@@ -40,10 +62,16 @@ export function toMessage(err: unknown): string {
   const raw =
     typeof err === 'string' ? err :
     err && typeof err === 'object' && 'message' in err ? String((err as { message: unknown }).message) : '';
-  const code = raw.match(/GK_[A-Z_]+/)?.[0];
-  if (code && ERROR_MESSAGES[code]) return ERROR_MESSAGES[code];
+  const gk = raw.match(/GK_[A-Z_]+/)?.[0];
+  if (gk && ERROR_MESSAGES[gk]) return ERROR_MESSAGES[gk];
+  const authCode = err && typeof err === 'object' && 'code' in err ? String((err as { code: unknown }).code) : '';
+  if (authCode && AUTH_CODES[authCode]) return AUTH_CODES[authCode];
   for (const [re, msg] of AUTH_MESSAGES) if (re.test(raw)) return msg;
-  if (__DEV__ && raw) console.warn('[GençKök] çevrilmemiş hata:', raw);
+  if (__DEV__ && raw) {
+    console.warn('[GençKök] çevrilmemiş hata:', authCode, raw);
+    // Geliştirmede asıl hata da görünsün ki ekip bildirebilsin (yayın sürümünde görünmez)
+    return `${FALLBACK} (${authCode ? authCode + ': ' : ''}${raw.slice(0, 80)})`;
+  }
   return FALLBACK;
 }
 
