@@ -62,14 +62,18 @@ export function WoodTabButton({ index, selected, onPress, label }: WoodTabButton
 }
 
 /** Expo Router `Tabs` için özel sekme çubuğu. QR ve Kamera rotasında hiçbir şey çizmez. */
-export function WoodTabBar({ state, navigation, descriptors }: BottomTabBarProps) {
+// SDK 58: tab bar'a `navigation` gelmiyor; yerine `emitter` + `navigateToTab(routeKey)` geliyor.
+export function WoodTabBar({ state, descriptors, emitter, navigateToTab }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const focused = state.routes[state.index];
   if (FULLSCREEN_ROUTES.includes(focused.name)) return null;
 
-  // `href: null` olan (sekme olmayan) rotalar çıkarılır. Expo Router bunu `tabBarItemStyle: { display: 'none' }` yapar.
-  // Profilim açıkken hiçbir sekme seçili görünmez.
-  const visible = state.routes.filter((r) => StyleSheet.flatten(descriptors[r.key]?.options.tabBarItemStyle)?.display !== 'none');
+  // `href: null` olan (sekme olmayan) rotalar çıkarılır. SDK 58 bunu `options.hidden: true` yapar
+  // (eski sürümler `tabBarItemStyle: { display: 'none' }`). Profilim açıkken hiçbir sekme seçili görünmez.
+  const visible = state.routes.filter((r) => {
+    const o = descriptors[r.key]?.options as { hidden?: boolean; tabBarItemStyle?: Parameters<typeof StyleSheet.flatten>[0] } | undefined;
+    return !o?.hidden && StyleSheet.flatten(o?.tabBarItemStyle)?.display !== 'none';
+  });
 
   return (
     <View style={[styles.bar, { paddingBottom: size.tabBarPadBottom + insets.bottom }]}>
@@ -81,8 +85,8 @@ export function WoodTabBar({ state, navigation, descriptors }: BottomTabBarProps
             index={i}
             selected={selected}
             onPress={() => {
-              const e = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-              if (!selected && !e.defaultPrevented) navigation.navigate(route.name, route.params);
+              const e = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+              if (!selected && !e.defaultPrevented) navigateToTab(route.key);
             }}
           />
         );

@@ -1,6 +1,6 @@
 // E-postadaki şifre sıfırlama bağlantısı uygulamayı buraya açar: genckok://sifre-yenile?code=...
 import { useEffect, useRef, useState } from 'react';
-import type { TextInput } from 'react-native';
+import type { TextInputInstance } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { exchangeResetCode, updatePassword } from '@/api/auth';
@@ -16,7 +16,7 @@ export default function SifreYenile() {
   const toast = useToast();
   const { session, loading: sessionLoading } = useSession();
   const { code } = useLocalSearchParams<{ code?: string }>();
-  const password2Ref = useRef<TextInput>(null);
+  const password2Ref = useRef<TextInputInstance>(null);
   const exchanged = useRef(false);
 
   const [phase, setPhase] = useState<Phase>(code ? 'checking' : 'form');
