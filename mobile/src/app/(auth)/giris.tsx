@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import type { TextInput } from 'react-native';
+import type { TextInputInstance } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { signIn } from '@/api/auth';
@@ -9,7 +9,7 @@ import { toMessage } from '@/lib/errors';
 
 export default function Giris() {
   const router = useRouter();
-  const passwordRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInputInstance>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
