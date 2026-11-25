@@ -48,6 +48,11 @@ export const updateMySapling = (treeId: string, f: { nickname: string; species?:
     p_planted_at: f.planted_at ?? null,
   });
 
+export const deleteMySapling = (treeId: string) =>
+  rpc<null>('delete_my_sapling', {
+    p_tree_id: treeId,
+  });
+
 // ---------- Hook'lar ----------
 export const useMySaplings = () => useQuery({ queryKey: qk.mySaplings, queryFn: getMySaplings });
 
@@ -96,6 +101,14 @@ export function useUpdateMySapling() {
   return useMutation({
     mutationFn: (v: { treeId: string; nickname: string; species?: string | null; planted_at?: string | null }) =>
       updateMySapling(v.treeId, v),
+    onSuccess: (_r, v) => inv(v.treeId),
+  });
+}
+
+export function useDeleteMySapling() {
+  const inv = useInvalidateSaplings();
+  return useMutation({
+    mutationFn: (v: { treeId: string }) => deleteMySapling(v.treeId),
     onSuccess: (_r, v) => inv(v.treeId),
   });
 }
